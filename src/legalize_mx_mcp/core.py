@@ -38,6 +38,17 @@ def _fold(s: str) -> str:
     return "".join(c for c in s if not unicodedata.combining(c)).lower()
 
 
+def _notice(out: dict) -> dict:
+    """Attach a notice when the local index is behind the published one or old."""
+    try:
+        msg = index.staleness()
+    except Exception:  # noqa: BLE001 — a failed freshness check must not break an answer
+        msg = None
+    if msg:
+        out["aviso_indice"] = msg
+    return out
+
+
 def _not_found(rid: str) -> dict:
     return {
         "error": f"no encontré la norma {rid!r}",
@@ -105,11 +116,13 @@ def buscar_norma(
     rows = index.search(texto, estado, municipio, tipo, vigente, con_texto, fuente, limite, desde)
     for r in rows:
         r["has_text"] = bool(r["has_text"])
-    return {
-        "resultados": rows,
-        "n": len(rows),
-        "siguiente_desde": desde + len(rows) if len(rows) == limite else None,
-    }
+    return _notice(
+        {
+            "resultados": rows,
+            "n": len(rows),
+            "siguiente_desde": desde + len(rows) if len(rows) == limite else None,
+        }
+    )
 
 
 def leer_norma(
@@ -367,7 +380,7 @@ def fuentes(id: str) -> dict:
 
 
 def cobertura(estado: str | None = None, municipio: str | None = None) -> dict:
-    out = index.coverage(estado, municipio)
+    out = _notice(index.coverage(estado, municipio))
     out["indice"] = {
         k: v for k, v in index.meta().items() if k in ("version", "built", "norms", "with_text")
     }
@@ -397,10 +410,16 @@ def leer_nota_dof(codigo: str, desde: int = 0, max_caracteres: int = 60_000) -> 
     return {**note, **_page(text, desde, max_caracteres)}
 
 
+def actualizar_indice() -> dict:
+    return index.update()
+
+
 def info() -> dict:
-    return {
-        "indice": index.meta(),
-        "repo": config.GITHUB_REPO,
-        "dataset": config.HF_DATASET,
-        "cache": str(config.CACHE_DIR),
-    }
+    return _notice(
+        {
+            "indice": index.meta(),
+            "repo": config.GITHUB_REPO,
+            "dataset": config.HF_DATASET,
+            "cache": str(config.CACHE_DIR),
+        }
+    )

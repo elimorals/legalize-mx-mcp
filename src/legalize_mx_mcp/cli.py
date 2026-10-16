@@ -9,6 +9,7 @@ legalize-mx fuentes LFT
 legalize-mx cobertura [--estado JAL] [--municipio Zapopan]
 legalize-mx dof [--fecha 2026-10-15] [--todas]
 legalize-mx info
+legalize-mx actualizar
 """
 
 from __future__ import annotations
@@ -77,6 +78,7 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("codigo")
 
     sub.add_parser("info")
+    sub.add_parser("actualizar", help="bajar el índice más reciente")
 
     a = ap.parse_args(argv)
     if a.cmd == "buscar":
@@ -110,6 +112,8 @@ def main(argv: list[str] | None = None) -> int:
         out = core.dof_del_dia(a.fecha, not a.todas)
     elif a.cmd == "nota-dof":
         out = core.leer_nota_dof(a.codigo)
+    elif a.cmd == "actualizar":
+        out = core.actualizar_indice()
     else:
         out = core.info()
     json.dump(out, sys.stdout, ensure_ascii=False, indent=2, default=str)

@@ -20,6 +20,7 @@ import sqlite3
 import threading
 import time
 import unicodedata
+from datetime import datetime, timezone
 from pathlib import Path
 
 import httpx
@@ -53,27 +54,31 @@ def normalize_state(state: str) -> str:
     return _STATE_ALIASES.get(s, "federal" if s == "federal" else state.strip().upper())
 
 
-def _download_index() -> Path:
+def _manifest() -> dict:
+    return (
+        httpx.get(
+            f"{config.HF_BASE}/index/latest.json",
+            headers={"User-Agent": config.USER_AGENT},
+            timeout=config.TIMEOUT,
+            follow_redirects=True,
+        )
+        .raise_for_status()
+        .json()
+    )
+
+
+def _download_index(force: bool = False) -> Path:
     """Fetch index/latest.json and, if newer than the cached copy, the index file."""
     cache = config.CACHE_DIR
     cache.mkdir(parents=True, exist_ok=True)
     pointer = cache / "index.json"
     current = json.loads(pointer.read_text()) if pointer.exists() else None
     fresh = current and time.time() - pointer.stat().st_mtime < config.INDEX_CHECK_HOURS * 3600
-    if current and fresh and (cache / current["local"]).exists():
+    if current and fresh and not force and (cache / current["local"]).exists():
         return cache / current["local"]
     headers = {"User-Agent": config.USER_AGENT}
     try:
-        manifest = (
-            httpx.get(
-                f"{config.HF_BASE}/index/latest.json",
-                headers=headers,
-                timeout=config.TIMEOUT,
-                follow_redirects=True,
-            )
-            .raise_for_status()
-            .json()
-        )
+        manifest = _manifest()
     except httpx.HTTPError:
         if current and (cache / current["local"]).exists():  # offline: keep using what we have
             return cache / current["local"]
@@ -117,6 +122,56 @@ def connect() -> sqlite3.Connection:
             _conn = sqlite3.connect(f"file:{path}?mode=ro", uri=True, check_same_thread=False)
             _conn.row_factory = sqlite3.Row
         return _conn
+
+
+def staleness() -> str | None:
+    """A notice when the open index is behind the published one (checked at most once per
+    INDEX_CHECK_HOURS) or older than STALE_DAYS; None when it is current."""
+    if config.INDEX_PATH:
+        return None
+    version = meta().get("version", "")
+    check = config.CACHE_DIR / "check.json"
+    latest = None
+    try:
+        c = json.loads(check.read_text())
+        if time.time() - c["checked"] < config.INDEX_CHECK_HOURS * 3600:
+            latest = c["latest"]
+    except (OSError, ValueError, KeyError):
+        pass
+    if latest is None:
+        try:
+            latest = _manifest()["version"]
+            check.parent.mkdir(parents=True, exist_ok=True)
+            check.write_text(json.dumps({"checked": time.time(), "latest": latest}))
+        except (httpx.HTTPError, OSError, ValueError, KeyError):
+            latest = version
+    if latest > version:
+        return (
+            f"Hay un índice más reciente ({latest}; el tuyo es {version}). "
+            "Ejecuta actualizar_indice() para usarlo."
+        )
+    try:
+        built = datetime.fromisoformat(meta()["built"])
+        days = (datetime.now(timezone.utc) - built).days
+    except (KeyError, ValueError):
+        return None
+    if days > config.STALE_DAYS:
+        return (
+            f"El índice tiene {days} días: las normas publicadas después pueden faltar. "
+            "Confirma lo reciente con dof_del_dia() o la fuente oficial."
+        )
+    return None
+
+
+def update() -> dict:
+    """Download the newest published index now and switch to it."""
+    before = meta().get("version") if _conn is not None else None
+    path = _download_index(force=True)
+    reset()
+    connect()
+    after = meta().get("version")
+    (config.CACHE_DIR / "check.json").unlink(missing_ok=True)
+    return {"antes": before, "ahora": after, "archivo": str(path), "actualizado": before != after}
 
 
 def reset() -> None:

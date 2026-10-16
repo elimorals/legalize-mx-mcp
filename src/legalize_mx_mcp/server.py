@@ -15,7 +15,8 @@ mcp = FastMCP(
         "portales municipales y DOF), con el historial de reformas en git. Empieza con buscar_norma "
         "para obtener el id; luego leer_norma, articulo, historial, diff o fuentes. Cita siempre la "
         "fuente oficial que devuelve fuentes(). Si una norma no tiene texto procesado, leer_norma con "
-        "extraer_en_vivo=true baja el documento oficial. dof_del_dia consulta el DOF en vivo."
+        "extraer_en_vivo=true baja el documento oficial. dof_del_dia consulta el DOF en vivo. "
+        "Si una respuesta trae aviso_indice, avisa al usuario y ofrece actualizar_indice()."
     ),
 )
 
@@ -100,6 +101,13 @@ def dof_del_dia(fecha: str | None = None, solo_normativas: bool = True) -> dict:
 def leer_nota_dof(codigo: str, desde: int = 0, max_caracteres: int = 60_000) -> dict:
     """Texto completo de una nota del DOF por su código (de dof_del_dia), en vivo."""
     return core.leer_nota_dof(codigo, desde, max_caracteres)
+
+
+@mcp.tool()
+def actualizar_indice() -> dict:
+    """Baja ahora el índice más reciente publicado y lo usa. Úsalo cuando una respuesta traiga
+    `aviso_indice`, o si buscas algo publicado en los últimos días."""
+    return core.actualizar_indice()
 
 
 def main() -> None:

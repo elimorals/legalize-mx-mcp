@@ -244,3 +244,15 @@ def test_index_is_readonly(env):
 
     with pytest.raises(sqlite3.OperationalError):
         index.connect().execute("DELETE FROM norms")
+
+
+def test_staleness_notice(env, monkeypatch):
+    from legalize_mx_mcp import config, core, index
+
+    index.connect()  # open the test index, then behave like a downloaded one
+    monkeypatch.setattr(config, "INDEX_PATH", None)
+    monkeypatch.setattr(index, "_manifest", lambda: {"version": "999912312359"})
+    assert "más reciente" in core.buscar_norma("ley")["aviso_indice"]
+    monkeypatch.setattr(index, "_manifest", lambda: {"version": index.meta()["version"]})
+    (config.CACHE_DIR / "check.json").unlink(missing_ok=True)
+    assert "aviso_indice" not in core.buscar_norma("ley")

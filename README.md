@@ -66,8 +66,18 @@ uvx --from git+https://github.com/elimorals/legalize-mx-mcp legalize-mx buscar "
 | `cobertura(estado?, municipio?)` | Qué hay y qué falta: normas por fuente y tipo, y la fuente de cada municipio |
 | `dof_del_dia(fecha?, solo_normativas?)` | Lo que publicó el DOF ese día (en vivo) |
 | `leer_nota_dof(codigo)` | Texto completo de una nota del DOF (en vivo) |
+| `actualizar_indice()` | Baja ya el índice más reciente, sin reiniciar |
 
-En el CLI son los subcomandos `buscar`, `leer`, `articulo`, `historial`, `diff`, `fuentes`, `cobertura`, `dof`, `nota-dof` e `info`.
+En el CLI son los subcomandos `buscar`, `leer`, `articulo`, `historial`, `diff`, `fuentes`, `cobertura`, `dof`, `nota-dof`, `actualizar` e `info`.
+
+## Mantenerlo al día
+
+El índice se publica de nuevo conforme entran normas y reformas. Tu copia local se mantiene así:
+
+- **Al arrancar:** si pasaron más de 24 h desde la última revisión, el MCP consulta `index/latest.json`, que pesa unos bytes, y baja el índice solo si hay versión nueva.
+- **Mientras corre:** si se publica un índice nuevo, `buscar_norma`, `cobertura` e `info` agregan a su respuesta un campo **`aviso_indice`** con el mensaje para el usuario. Con `actualizar_indice()` o `legalize-mx actualizar` se cambia a la versión nueva sin reiniciar.
+- **Si tu copia tiene más de 7 días**, también aparece `aviso_indice`, porque lo publicado esos días puede faltar. Lo más reciente se confirma con `dof_del_dia()`, que consulta el DOF en vivo.
+- **El texto y el historial** de cada ley siempre se leen del repo de GitHub, así que reflejan la última publicación aunque el índice sea de unos días antes.
 
 ### Ejemplos
 
