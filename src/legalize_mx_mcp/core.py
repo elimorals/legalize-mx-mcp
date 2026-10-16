@@ -299,26 +299,62 @@ def diff(id: str, fecha_a: str, fecha_b: str | None = None, max_caracteres: int 
         return {"id": n["id"], "error": f"la norma no existía el {fecha_a}"}
     _, a = _split(remote.text_at(n["repo_path"], va["sha"]))
     _, b = _split(remote.text_at(n["repo_path"], vb["sha"] if vb else None))
-    arts_a = {k: t for k, _, t in articles(a)}
-    arts_b = {k: t for k, _, t in articles(b)}
-    lines = difflib.unified_diff(
-        a.splitlines(), b.splitlines(), fecha_a, fecha_b or "vigente", lineterm="", n=1
+    # Compared article by article: a whole-text diff of a 16,000-line law misaligns.
+    # The first occurrence of a number is the body's (transitories restart numbering).
+    arts_a: dict[str, str] = {}
+    arts_b: dict[str, str] = {}
+    for k, _, t in articles(a):
+        arts_a.setdefault(k, t)
+    for k, _, t in articles(b):
+        arts_b.setdefault(k, t)
+    reformed = sorted(
+        (k for k in arts_a.keys() & arts_b.keys() if arts_a[k] != arts_b[k]), key=_natural
     )
-    text = "\n".join(lines)
+    added = sorted(arts_b.keys() - arts_a.keys(), key=_natural)
+    removed = sorted(arts_a.keys() - arts_b.keys(), key=_natural)
     out = {
         "id": n["id"],
         "version_a": va.get("fecha") or va["fecha_commit"],
         "version_b": ((vb or {}).get("fecha") or (vb or {}).get("fecha_commit")) or "vigente",
-        "articulos_reformados": sorted(
-            k for k in arts_a.keys() & arts_b.keys() if arts_a[k] != arts_b[k]
-        ),
-        "articulos_adicionados": sorted(arts_b.keys() - arts_a.keys()),
-        "articulos_derogados_o_eliminados": sorted(arts_a.keys() - arts_b.keys()),
-        "diff": text[:max_caracteres],
+        "articulos_reformados": reformed,
+        "articulos_adicionados": added,
+        "articulos_derogados_o_eliminados": removed,
+        "cambios": [],
     }
-    if len(text) > max_caracteres:
-        out["nota"] = f"diff truncado a {max_caracteres} caracteres"
+    used = 0
+    for kind, keys in (("reformado", reformed), ("adicionado", added), ("eliminado", removed)):
+        for k in keys:
+            before, after = arts_a.get(k, ""), arts_b.get(k, "")
+            change = {"articulo": k, "tipo": kind}
+            if kind == "reformado":
+                change["diff"] = "\n".join(
+                    difflib.unified_diff(
+                        before.splitlines(),
+                        after.splitlines(),
+                        "antes",
+                        "despues",
+                        lineterm="",
+                        n=0,
+                    )
+                )
+            else:
+                change["texto"] = after or before
+            size = len(json.dumps(change, ensure_ascii=False))
+            if used + size > max_caracteres:
+                out["nota"] = (
+                    f"se muestran {len(out['cambios'])} cambios de "
+                    f"{len(reformed) + len(added) + len(removed)}; sube max_caracteres "
+                    "o pide articulo(id, numero, fecha) para el resto"
+                )
+                return out
+            out["cambios"].append(change)
+            used += size
     return out
+
+
+def _natural(key: str) -> tuple:
+    m = re.match(r"(\d+)\s*(.*)", key)
+    return (0, int(m.group(1)), m.group(2)) if m else (1, 0, key)
 
 
 def articulo(id: str, numero: str, fecha: str | None = None) -> dict:
