@@ -106,7 +106,7 @@ legalize-mx dof
 
 `buscar_norma` siempre devuelve el id.
 
-Más ejemplos, con respuestas reales y flujos completos de un agente: [EJEMPLOS.md](EJEMPLOS.md).
+Más ejemplos, con respuestas reales y flujos completos de un agente: [EJEMPLOS.md](EJEMPLOS.md). Qué falta y en qué orden: [ROADMAP.md](ROADMAP.md).
 
 ## Servidor HTTP (opcional)
 
