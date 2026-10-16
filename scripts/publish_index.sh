@@ -7,7 +7,17 @@ REPO=${LEGALIZE_MX_HF_DATASET:-elimoralsmendox/legalize-mx}
 FILE=$(python3 -c "import json;print(json.load(open('$DIST/latest.json'))['file'])")
 hf upload "$REPO" "$DIST/$FILE" "index/$FILE" --repo-type dataset --commit-message "index: $FILE"
 hf upload "$REPO" "$DIST/latest.json" index/latest.json --repo-type dataset --commit-message "index: latest → $FILE"
-for old in $(hf api "datasets/$REPO/tree/main/index" 2>/dev/null | python3 -c "import json,sys;[print(x['path']) for x in json.load(sys.stdin) if x['path'].endswith('.sqlite.gz') and not x['path'].endswith('$FILE')]" 2>/dev/null); do
-  hf repo-files delete "$REPO" "$old" --repo-type dataset 2>/dev/null || echo "no pude borrar $old (bórralo a mano)"
+OLD=$(python3 - "$REPO" "$FILE" <<'EOF'
+import json, sys, urllib.request
+repo, keep = sys.argv[1], sys.argv[2]
+with urllib.request.urlopen(f"https://huggingface.co/api/datasets/{repo}/tree/main/index") as r:
+    for x in json.load(r):
+        if x["path"].endswith(".sqlite.gz") and not x["path"].endswith(keep):
+            print(x["path"])
+EOF
+)
+for old in ${(f)OLD}; do
+  hf repo-files delete "$REPO" "$old" --repo-type dataset --commit-message "index: remove $old" >/dev/null
+  echo "borrado $old"
 done
 echo "publicado index/$FILE"

@@ -98,6 +98,8 @@ legalize-mx dof
 
 `buscar_norma` siempre devuelve el id.
 
+Más ejemplos, con respuestas reales y flujos completos de un agente: [EJEMPLOS.md](EJEMPLOS.md).
+
 ## Servidor HTTP (opcional)
 
 Para agentes que no pueden lanzar procesos locales:
