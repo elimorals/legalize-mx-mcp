@@ -1,0 +1,46 @@
+{
+  "skill_name": "legalize-mx",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "codigo-penal-jalisco-robo-vehiculo",
+      "prompt": "me robaron la camioneta en guadalajara y el ajustador del seguro me pide que le diga que articulo del codigo penal de jalisco aplica y que pena tiene, me ayudas?",
+      "expected_output": "Busca el Código Penal de Jalisco vigente, ubica el/los artículos de robo y robo de vehículo, cita el texto exacto con su pena, indica versión/fecha y da la fuente oficial; no inventa números de artículo.",
+      "files": [],
+      "assertions": [
+        {"text": "Usó buscar_norma y luego articulo o leer_norma del Código Penal de Jalisco (no de otro estado)", "type": "trace"},
+        {"text": "Cita textualmente al menos un artículo de robo del Código Penal de Jalisco obtenido de la herramienta", "type": "answer"},
+        {"text": "Indica la fecha o versión del texto usado (vigente al …)", "type": "answer"},
+        {"text": "Incluye un enlace a la fuente oficial (legislacion.scjn.gob.mx o equivalente)", "type": "answer"},
+        {"text": "No afirma números de artículo o penas que no aparezcan en lo que devolvieron las herramientas", "type": "answer"}
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "lft-reforma-mayo-2026-rh",
+      "prompt": "Soy de RH en una pyme. ¿Qué cambió en la Ley Federal del Trabajo con las reformas de mayo de 2026? Necesito un resumen por artículo para mandarlo a los gerentes.",
+      "expected_output": "Usa historial para ubicar las reformas de mayo 2026 (1 y 14 de mayo) y diff entre fechas para listar artículos reformados/adicionados con antes y después; cita decretos y fuente.",
+      "files": [],
+      "assertions": [
+        {"text": "Usó historial y diff (o articulo con fecha) de la LFT", "type": "trace"},
+        {"text": "Menciona las dos reformas de mayo de 2026 (1 de mayo y 14 de mayo) o sus decretos (111/2026 y 124/2026)", "type": "answer"},
+        {"text": "Lista artículos concretos que cambiaron (p. ej. 58–71, 283 Ter, 303–310) tomados de la herramienta", "type": "answer"},
+        {"text": "Incluye fuente oficial (DOF o SCJN)", "type": "answer"}
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "zapopan-anuncios-taqueria",
+      "prompt": "tengo una taqueria en zapopan y quiero poner un anuncio luminoso en la fachada, que reglamento municipal lo regula y que dice? no quiero que me multen",
+      "expected_output": "Busca normativa municipal de Zapopan sobre anuncios; si no tiene texto, la extrae en vivo o da el enlace oficial; cita lo encontrado con fuente; si no encuentra algo, usa cobertura y lo dice sin inventar.",
+      "files": [],
+      "assertions": [
+        {"text": "Buscó con filtro de municipio Zapopan (o estado JAL) en buscar_norma", "type": "trace"},
+        {"text": "Identifica un reglamento municipal de Zapopan sobre anuncios con su nombre exacto o dice explícitamente que no lo encontró", "type": "answer"},
+        {"text": "Si la norma no tenía texto, usó extraer_en_vivo o dio el enlace oficial al documento", "type": "trace"},
+        {"text": "Da al menos un enlace oficial de Zapopan o del documento", "type": "answer"},
+        {"text": "No inventa artículos ni montos de multa que no salieron de las herramientas", "type": "answer"}
+      ]
+    }
+  ]
+}
