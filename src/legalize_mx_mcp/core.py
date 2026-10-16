@@ -188,6 +188,23 @@ def leer_norma(
         out["nota"] = (
             "la extracción en vivo da el documento tal como se publicó, no una versión por fecha"
         )
+    if n["origin"] == "dof":  # DOF notes come from its API, not as a file
+        try:
+            note = remote.dof_note(n["id"].split(":", 1)[1])
+        except Exception as exc:  # noqa: BLE001 — the DOF API is down or slow
+            out["error"] = f"no pude leer la nota del DOF: {exc}"
+            return out
+        if not note["caracteres"]:
+            page = json.loads(n["extra"] or "{}").get("page")
+            out["nota"] = (
+                "el DOF no publica esta nota como texto: solo está en el PDF de la edición"
+                + (f", página {page}" if page else "")
+                + "; usa los documentos_oficiales"
+            )
+            return out
+        out["extraido_en_vivo"] = {"fuente": "API del DOF", "caracteres": note["caracteres"]}
+        out.update(_page(note["texto"], desde, max_caracteres))
+        return out
     best = next(
         (d for d in docs if d.get("url") and d.get("tipo") in ("docx", "texto", "html")), None
     ) or next((d for d in docs if d.get("url")), None)
@@ -195,7 +212,7 @@ def leer_norma(
         out["error"] = "la fuente no enlaza ningún documento descargable"
         return out
     try:
-        live = remote.fetch_and_extract(best["url"], max_chars=desde + max_caracteres)
+        live = remote.fetch_and_extract(best["url"])
     except Exception as exc:  # noqa: BLE001 — the portal is down, blocked, or moved
         out["error"] = f"no pude bajar el documento oficial: {exc}"
         return out
@@ -441,7 +458,7 @@ def dof_del_dia(fecha: str | None = None, solo_normativas: bool = True) -> dict:
 
 
 def leer_nota_dof(codigo: str, desde: int = 0, max_caracteres: int = 60_000) -> dict:
-    note = remote.dof_note(codigo, max_chars=desde + max_caracteres)
+    note = remote.dof_note(codigo)
     text = note.pop("texto")
     return {**note, **_page(text, desde, max_caracteres)}
 

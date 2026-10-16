@@ -66,6 +66,14 @@ RANKS = (
 )
 
 
+# Sources name a few ranks differently from the SCJN catalogue.
+RANK_ALIASES = {
+    "ley_ingresos": "ley_de_ingresos",
+    "ley-ingresos": "ley_de_ingresos",
+    "codigo_municipal": "codigo",
+}
+
+
 def fold(s: str | None) -> str:
     s = unicodedata.normalize("NFKD", s or "")
     return "".join(c for c in s if not unicodedata.combining(c)).lower()
@@ -235,7 +243,8 @@ def build(
                     mname,
                     fold(mname),
                     minegi,
-                    r.get("rank_hint") or rank_of(r.get("title") or ""),
+                    RANK_ALIASES.get(r.get("rank_hint"), r.get("rank_hint"))
+                    or rank_of(r.get("title") or ""),
                     "repealed"
                     if st.startswith("abrog")
                     else "in_force"

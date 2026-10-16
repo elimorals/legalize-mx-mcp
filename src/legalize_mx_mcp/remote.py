@@ -179,7 +179,7 @@ def _html_text(data: bytes) -> str:
     return re.sub(r"[ \t]+", " ", re.sub(r"\n\s*\n+", "\n\n", text)).strip()
 
 
-def fetch_and_extract(url: str, max_chars: int = 200_000) -> dict:
+def fetch_and_extract(url: str, max_chars: int = 5_000_000) -> dict:
     """Download an official document and return its text. Scanned PDFs come back (nearly)
     empty: they need OCR, which this live path does not do."""
     r = client().get(url)
@@ -245,7 +245,7 @@ def dof_day(day: date) -> list[dict]:
     return notes
 
 
-def dof_note(code: int | str, max_chars: int = 200_000) -> dict:
+def dof_note(code: int | str, max_chars: int = 5_000_000) -> dict:
     """Full text of one DOF note."""
     r = client().get(f"{_SIDOF}/notas/nota/{code}")
     r.raise_for_status()
