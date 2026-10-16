@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "legalize-mx": {
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/elimorals/legalize-mx-mcp", "legalize-mx-mcp"]
+    }
+  }
+}

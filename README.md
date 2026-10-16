@@ -25,7 +25,15 @@ Corre en tu máquina, sin servidor propio:
 
 Necesitas [uv](https://docs.astral.sh/uv/). Para extraer PDF en vivo hace falta además `pdftotext` (`brew install poppler` o `apt install poppler-utils`), o instalar el extra `[pdf]`.
 
-### Claude Code
+### Claude Code: plugin con el MCP y la skill (recomendado)
+
+```
+/plugin install legalize-mx --marketplace elimorals/legalize-mx-mcp
+```
+
+Instala el MCP y la skill **`legalize-mx`**. La skill le enseña al agente cuándo consultarlo y en qué orden usar las herramientas, cómo citar la fuente y versión, y qué no cubre. Con Claude Code anterior a 2.1.275: `/plugin marketplace add elimorals/legalize-mx-mcp` y luego `/plugin install legalize-mx`.
+
+### Claude Code: solo el MCP
 
 ```bash
 claude mcp add legalize-mx -- uvx --from git+https://github.com/elimorals/legalize-mx-mcp legalize-mx-mcp

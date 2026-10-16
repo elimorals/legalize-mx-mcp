@@ -1,0 +1,19 @@
+{
+  "name": "legalize-mx",
+  "owner": {
+    "name": "Elías Rashid Morales Mendoza"
+  },
+  "metadata": {
+    "description": "Legislación mexicana para agentes: MCP + skill.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "legalize-mx",
+      "source": "./",
+      "description": "MCP legalize-mx (legislación federal, estatal y municipal con historial de reformas) y la skill para usarlo.",
+      "version": "0.1.0",
+      "keywords": ["mexico", "legislacion", "leyes", "dof", "scjn"]
+    }
+  ]
+}

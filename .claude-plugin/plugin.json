@@ -1,0 +1,13 @@
+{
+  "name": "legalize-mx",
+  "displayName": "Legalize MX — Legislación mexicana",
+  "description": "Legislación mexicana federal, estatal y municipal (SCJN, congresos, DOF, periódicos oficiales, ~600 portales municipales) con historial de reformas: busca normas, lee el texto vigente o el de cualquier fecha, compara versiones artículo por artículo y cita la fuente oficial. Incluye el MCP legalize-mx y la skill que enseña a usarlo.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Elías Rashid Morales Mendoza"
+  },
+  "homepage": "https://github.com/elimorals/legalize-mx-mcp",
+  "repository": "https://github.com/elimorals/legalize-mx-mcp",
+  "license": "MIT",
+  "keywords": ["mexico", "legislacion", "leyes", "scjn", "dof", "nom", "municipal", "mcp"]
+}
