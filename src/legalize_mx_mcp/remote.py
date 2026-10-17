@@ -69,8 +69,18 @@ def _parse_message(msg: str) -> dict:
 
 
 def history(path: str) -> list[dict]:
-    """Every commit that touched the file, oldest first: date, type, decree, articles."""
-    cache = config.CACHE_DIR / "history" / (hashlib.sha1(path.encode()).hexdigest() + ".json")
+    """Every commit that touched the file, oldest first: date, type, decree, articles.
+
+    Cached per index version: a repair that rewrites the repo's history ships a new index,
+    and old commit hashes (still served by GitHub for a while) must not be read after it."""
+    from legalize_mx_mcp import index  # late: index imports nothing from here
+
+    try:
+        version = index.meta().get("version", "")
+    except Exception:  # noqa: BLE001 — no index (tests, local repo): one shared cache
+        version = ""
+    key = hashlib.sha1(f"{version}:{path}".encode()).hexdigest()
+    cache = config.CACHE_DIR / "history" / f"{key}.json"
     if cache.exists() and time.time() - cache.stat().st_mtime < config.HISTORY_CACHE_HOURS * 3600:
         return json.loads(cache.read_text())
     commits = _history(path)

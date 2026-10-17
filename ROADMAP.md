@@ -36,12 +36,11 @@ Hoy vamos adelante en el nivel municipal, el historial de reformas, el DOF y la 
 - **Corrección integrada:** el pipeline descarta toda versión cuyo texto no corresponda a la norma, en cosecha, reproceso y actualización diaria. Tiene 12 tests.
 - **Detector:** precisión de ~98 %. Es censo versión por versión en `versiones-contaminadas.jsonl`.
 
+**Hecho el 17-oct-2026:** se reconstruyeron **824 leyes sin 985 versiones ajenas** y se reescribió el historial público con *force push*: la CPEUM bajó de 245 a 236 versiones. También se regeneró el dataset de Hugging Face. Hay un respaldo del estado anterior. Las 3 detecciones dudosas, con similitud ≥ 0.3, se conservaron.
+
 **Lo que falta**
-1. Revisar a mano las 86 detecciones de confianza media.
-2. Reconstruir las 825 leyes sin las versiones ajenas. Es un script offline (~2 min) que ya pasó la prueba en seco.
-3. Reescribir su historial en el repo público, lo que implica force push, y regenerar el dataset de Hugging Face.
-4. Volver a bajar, en un solo proceso, las reformas que queden con hueco.
-5. **Verificación permanente:** un chequeo de identidad en cada publicación, que falle si una versión no nombra su norma o difiere demasiado de sus vecinas.
+1. Volver a bajar, en un solo proceso, las reformas que queden con hueco.
+2. **Verificación permanente:** un chequeo de identidad en cada publicación, que falle si una versión no nombra su norma o difiere demasiado de sus vecinas.
 
 ## Prioridad 1: Jurisprudencia y tesis
 

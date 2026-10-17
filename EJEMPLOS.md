@@ -665,7 +665,7 @@ Si el resultado trajera `has_text=false`, el paso 2 sería `leer_norma(id=<id>, 
 2. `articulo(id="CPEUM", numero="27")` da el texto vigente.
 3. `historial(id="CPEUM")` lista las reformas que tocaron el artículo 27, buscando "27" en `articulos_afectados`, con su fecha y decreto.
 
-> **Aviso conocido.** Algunas versiones históricas intermedias de unas cuantas leyes, entre ellas la CPEUM, quedaron mezcladas con el texto de otra norma por un error de la fuente al descargarlas. Se reconoce porque un `diff` marca cientos de artículos "reformados" de golpe. El texto vigente no está afectado. La corrección está en curso.
+> **Corregido el 17-oct-2026.** Algunas versiones históricas de 824 leyes, entre ellas la CPEUM, estaban mezcladas con el texto de otra norma por un error de la fuente al descargarlas. Se reconstruyó su historial sin esas versiones. Si un `diff` llegara a marcar cientos de artículos "reformados" de golpe, repórtalo.
 
 ---
 
