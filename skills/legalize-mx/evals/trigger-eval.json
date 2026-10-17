@@ -1,0 +1,22 @@
+[
+  {"query": "oye mi patrón me quiere hacer trabajar 10 horas diarias de lunes a sábado en monterrey, eso es legal? que dice la ley", "should_trigger": true},
+  {"query": "Estoy redactando un contrato de arrendamiento para un local en Guadalajara. ¿Qué artículos del Código Civil de Jalisco regulan el depósito en garantía y cuánto puedo pedir?", "should_trigger": true},
+  {"query": "necesito el texto exacto del articulo 123 apartado A fraccion VI de la constitucion para ponerlo en un dictamen de salario minimo", "should_trigger": true},
+  {"query": "¿Cómo estaba redactado el artículo 3o constitucional antes de la reforma educativa de 2019? quiero comparar", "should_trigger": true},
+  {"query": "salio algo hoy en el diario oficial sobre la NOM-035 de riesgo psicosocial? mi jefe dice que hubo cambios", "should_trigger": true},
+  {"query": "tengo un food truck en Mérida, qué reglamento municipal me aplica para vender en la vía pública y qué permisos piden?", "should_trigger": true},
+  {"query": "Para un análisis de cumplimiento LFPDPPP: ¿qué obligaciones tiene el responsable sobre el aviso de privacidad según la ley vigente? Cita artículos.", "should_trigger": true},
+  {"query": "what does Mexico's Ley Federal de Protección al Consumidor say about refunds for online purchases? need the actual article", "should_trigger": true},
+  {"query": "qué cambió en el Código Fiscal de la Federación este año respecto a las multas por no emitir CFDI", "should_trigger": true},
+  {"query": "en oaxaca los municipios tienen bando de policia publicado? el de juchitan donde lo encuentro", "should_trigger": true},
+  {"query": "¿Qué dijo la Suprema Corte en la jurisprudencia sobre la prisión preventiva oficiosa? busco la tesis y su registro digital", "should_trigger": false},
+  {"query": "explícame en términos sencillos la diferencia entre amparo directo e indirecto, es para una clase de derecho procesal que doy mañana", "should_trigger": false},
+  {"query": "How does California's CCPA compare to GDPR in terms of the right to deletion? I'm writing a privacy policy for a US startup", "should_trigger": false},
+  {"query": "ayudame a calcular el ISR de mi nómina quincenal de 18,500 pesos con la tabla del SAT 2026", "should_trigger": false},
+  {"query": "redacta un correo formal para mi casero pidiéndole que me devuelva el depósito, ya entregué el departamento hace un mes", "should_trigger": false},
+  {"query": "hazme un resumen de la historia de la Constitución de 1917 y el Congreso Constituyente de Querétaro para una presentación escolar", "should_trigger": false},
+  {"query": "tengo un error en el pipeline de legalize-mx: mx_harvest.py truena con BadZipFile en algunos estados, me ayudas a depurarlo?", "should_trigger": false},
+  {"query": "¿Cuál es la ley de propiedad horizontal en Colombia sobre cuotas de administración atrasadas?", "should_trigger": false},
+  {"query": "genera una factura CFDI 4.0 de honorarios para mi cliente con retención de ISR e IVA, régimen 612", "should_trigger": false},
+  {"query": "quiero entender cómo funcionan los tratados de libre comercio, en general, qué es el T-MEC y por qué importa para las pymes", "should_trigger": false}
+]
