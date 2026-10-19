@@ -1,7 +1,7 @@
 #!/bin/zsh
 # Description optimization loop from skill-creator (claude -p, train/test split, 5 rounds).
 # Usage: optimize_description.sh [model]
-SC=/Users/elias/.claude/plugins/cache/claude-plugins-official/skill-creator/ea10b213686c/skills/skill-creator
+SC=${SKILL_CREATOR_DIR:?set SKILL_CREATOR_DIR to the skill-creator skill folder}
 WS=~/Developer/legalize-mx-mcp/skills/legalize-mx-workspace
 cd $SC
 python3 -m scripts.run_loop \

@@ -28,5 +28,9 @@ TIMEOUT = float(os.environ.get("LEGALIZE_MX_TIMEOUT", "60"))
 HISTORY_CACHE_HOURS = float(os.environ.get("LEGALIZE_MX_HISTORY_CACHE_HOURS", "24"))
 # Re-check the index manifest at most this often.
 INDEX_CHECK_HOURS = float(os.environ.get("LEGALIZE_MX_INDEX_CHECK_HOURS", "24"))
+# Safety caps for documents fetched live and for the downloaded index.
+MAX_DOC_BYTES = int(os.environ.get("LEGALIZE_MX_MAX_DOC_MB", "100")) * 1_000_000
+MAX_XML_BYTES = 300_000_000  # uncompressed word/document.xml of a .docx
+MAX_INDEX_BYTES = int(os.environ.get("LEGALIZE_MX_MAX_INDEX_GB", "4")) * 1_000_000_000
 # Past this age every answer carries a notice that recent norms may be missing.
 STALE_DAYS = int(os.environ.get("LEGALIZE_MX_STALE_DAYS", "7"))

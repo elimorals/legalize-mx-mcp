@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import sys
 
 from mcp.server.fastmcp import FastMCP
 
@@ -117,6 +118,13 @@ def main() -> None:
     ap.add_argument("--port", type=int, default=8000)
     a = ap.parse_args()
     if a.http:
+        if a.host not in ("127.0.0.1", "localhost", "::1"):
+            print(
+                f"AVISO: escuchando en {a.host}:{a.port} sin autenticación. Cualquiera que llegue a "
+                "este puerto puede usar el servidor y hacer que descargue documentos de internet. "
+                "Ponlo detrás de un proxy con autenticación o limita el acceso por red.",
+                file=sys.stderr,
+            )
         mcp.settings.host, mcp.settings.port = a.host, a.port
         mcp.run(transport="streamable-http")
     else:

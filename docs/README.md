@@ -10,4 +10,5 @@
 | [ARQUITECTURA.md](ARQUITECTURA.md) | Cómo llega una norma del portal a la respuesta, y por qué se diseñó así |
 | [MANTENIMIENTO.md](MANTENIMIENTO.md) | Publicar el índice, reglas de integridad, evaluaciones de la skill y tests |
 | [FAQ.md](FAQ.md) | Preguntas frecuentes: confiabilidad, OCR, actualización, límites, licencia |
+| [../SECURITY.md](../SECURITY.md) | Modelo de amenazas, defensas y cómo reportar una vulnerabilidad |
 | [../ROADMAP.md](../ROADMAP.md) | Qué falta y en qué orden |

@@ -5,15 +5,18 @@ from __future__ import annotations
 
 import hashlib
 import io
+import ipaddress
 import json
 import re
 import shutil
+import socket
 import subprocess
 import tempfile
 import time
 import zipfile
 from datetime import date
 from pathlib import Path
+from urllib.parse import urlsplit
 from xml.etree import ElementTree
 
 import httpx
@@ -23,6 +26,31 @@ from legalize_mx_mcp import config
 _client: httpx.Client | None = None
 
 
+class BlockedURL(ValueError):
+    """A URL the live fetch must not request (not http(s), or resolves to a private address)."""
+
+
+def check_public_url(url: str) -> None:
+    """Refuse anything but http(s) to public addresses. Document URLs come from the index and
+    from portal redirects; without this a tampered index or a hostile redirect could make
+    the MCP request localhost or a cloud metadata endpoint (SSRF), worst in --http mode."""
+    parts = urlsplit(url)
+    if parts.scheme not in ("http", "https") or not parts.hostname:
+        raise BlockedURL(f"solo se permiten URLs http(s): {url!r}")
+    try:
+        infos = socket.getaddrinfo(parts.hostname, parts.port or 443, proto=socket.IPPROTO_TCP)
+    except socket.gaierror as exc:
+        raise BlockedURL(f"no se pudo resolver {parts.hostname!r}") from exc
+    for info in infos:
+        ip = ipaddress.ip_address(info[4][0])
+        if not ip.is_global or ip.is_multicast:
+            raise BlockedURL(f"{parts.hostname!r} resuelve a una dirección no pública ({ip})")
+
+
+def _guard(request: httpx.Request) -> None:  # runs for every hop, redirects included
+    check_public_url(str(request.url))
+
+
 def client() -> httpx.Client:
     global _client
     if _client is None:
@@ -30,8 +58,29 @@ def client() -> httpx.Client:
             headers={"User-Agent": config.USER_AGENT},
             timeout=config.TIMEOUT,
             follow_redirects=True,
+            max_redirects=5,
+            event_hooks={"request": [_guard]},
         )
     return _client
+
+
+def _get_capped(url: str, limit: int) -> tuple[bytes, str]:
+    """GET with a size cap (a huge or endless body must not exhaust memory).
+    Returns (body, content-type)."""
+    mb = limit // 1_000_000
+    with client().stream("GET", url) as r:
+        r.raise_for_status()
+        declared = r.headers.get("content-length", "")
+        if declared.isdigit() and int(declared) > limit:
+            raise ValueError(
+                f"el documento pesa {int(declared) // 1_000_000} MB; el tope es {mb} MB"
+            )
+        body = bytearray()
+        for chunk in r.iter_bytes(1 << 16):
+            body += chunk
+            if len(body) > limit:
+                raise ValueError(f"el documento supera el tope de {mb} MB")
+        return bytes(body), r.headers.get("content-type", "").lower()
 
 
 # ---------------------------------------------------------------- git repo (text, history)
@@ -147,7 +196,13 @@ def version_on(path: str, day: date) -> dict | None:
 def _docx_text(data: bytes) -> str:
     ns = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
     with zipfile.ZipFile(io.BytesIO(data)) as z:
-        root = ElementTree.fromstring(z.read("word/document.xml"))
+        info = z.getinfo("word/document.xml")
+        if info.file_size > config.MAX_XML_BYTES:  # zip bomb: tiny file, huge XML
+            raise ValueError("el .docx descomprime a un tamaño anómalo; no se procesa")
+        xml = z.read(info)
+    if b"<!DOCTYPE" in xml[:4096] or b"<!ENTITY" in xml:  # Word never declares entities
+        raise ValueError("el .docx declara entidades XML; no se procesa")
+    root = ElementTree.fromstring(xml)
     paras = []
     for p in root.iter(f"{ns}p"):
         t = "".join(x.text or "" for x in p.iter(f"{ns}t"))
@@ -192,10 +247,7 @@ def _html_text(data: bytes) -> str:
 def fetch_and_extract(url: str, max_chars: int = 5_000_000) -> dict:
     """Download an official document and return its text. Scanned PDFs come back (nearly)
     empty: they need OCR, which this live path does not do."""
-    r = client().get(url)
-    r.raise_for_status()
-    data = r.content
-    ctype = r.headers.get("content-type", "").lower()
+    data, ctype = _get_capped(url, config.MAX_DOC_BYTES)
     if data[:4] == b"%PDF":
         kind, text = "pdf", _pdf_text(data)
     elif data[:2] == b"PK":

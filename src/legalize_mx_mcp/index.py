@@ -15,7 +15,6 @@ import gzip
 import hashlib
 import json
 import re
-import shutil
 import sqlite3
 import threading
 import time
@@ -105,7 +104,15 @@ def _download_index(force: bool = False) -> Path:
         tmp.unlink(missing_ok=True)
         raise RuntimeError("the downloaded index does not match its checksum; try again")
     with gzip.open(tmp, "rb") as src, (cache / f"{local}.part").open("wb") as dst:
-        shutil.copyfileobj(src, dst, 1 << 20)
+        written = 0
+        while chunk := src.read(1 << 20):  # capped: a gzip bomb must not fill the disk
+            written += len(chunk)
+            if written > config.MAX_INDEX_BYTES:
+                dst.close()
+                (cache / f"{local}.part").unlink(missing_ok=True)
+                tmp.unlink(missing_ok=True)
+                raise RuntimeError("the index decompresses beyond the size cap; not used")
+            dst.write(chunk)
     (cache / f"{local}.part").replace(cache / local)
     tmp.unlink(missing_ok=True)
     if current and current.get("local") != local:
@@ -120,6 +127,11 @@ def connect() -> sqlite3.Connection:
         if _conn is None:
             path = Path(config.INDEX_PATH) if config.INDEX_PATH else _download_index()
             _conn = sqlite3.connect(f"file:{path}?mode=ro", uri=True, check_same_thread=False)
+            # The index is a downloaded file: treat its schema as untrusted (no triggers,
+            # views or functions from it run with side effects).
+            _conn.execute("PRAGMA trusted_schema = OFF")
+            if hasattr(sqlite3, "SQLITE_DBCONFIG_DEFENSIVE"):  # Python 3.12+
+                _conn.setconfig(sqlite3.SQLITE_DBCONFIG_DEFENSIVE, True)
             _conn.row_factory = sqlite3.Row
         return _conn
 
