@@ -1,5 +1,7 @@
 # legalize-mx-mcp
 
+[![CI](https://github.com/elimorals/legalize-mx-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/elimorals/legalize-mx-mcp/actions/workflows/ci.yml) · **v0.1.0, beta pública** · [cambios](CHANGELOG.md)
+
 MCP server y CLI para que agentes de IA consulten la **legislación mexicana federal, estatal y municipal**, con su historial de reformas.
 
 Busca en el catálogo, lee el texto vigente o el que regía en una fecha, compara versiones y devuelve siempre el enlace oficial para citar.
@@ -36,7 +38,7 @@ Instala el MCP y la skill **`legalize-mx`**. La skill le enseña al agente cuán
 ### Claude Code: solo el MCP
 
 ```bash
-claude mcp add legalize-mx -- uvx --from git+https://github.com/elimorals/legalize-mx-mcp legalize-mx-mcp
+claude mcp add legalize-mx -- uvx --from git+https://github.com/elimorals/legalize-mx-mcp@v0.1.0 legalize-mx-mcp
 ```
 
 ### Otros clientes MCP (`.mcp.json`, Claude Desktop, Cursor…)
@@ -46,7 +48,7 @@ claude mcp add legalize-mx -- uvx --from git+https://github.com/elimorals/legali
   "mcpServers": {
     "legalize-mx": {
       "command": "uvx",
-      "args": ["--from", "git+https://github.com/elimorals/legalize-mx-mcp", "legalize-mx-mcp"],
+      "args": ["--from", "git+https://github.com/elimorals/legalize-mx-mcp@v0.1.0", "legalize-mx-mcp"],
       "env": { "GITHUB_TOKEN": "" }
     }
   }
@@ -58,7 +60,7 @@ Sin token, GitHub permite 60 consultas de historial por hora. El historial se gu
 ### CLI
 
 ```bash
-uvx --from git+https://github.com/elimorals/legalize-mx-mcp legalize-mx buscar "jornada laboral" --estado federal
+uvx --from git+https://github.com/elimorals/legalize-mx-mcp@v0.1.0 legalize-mx buscar "jornada laboral" --estado federal
 ```
 
 ## Herramientas
