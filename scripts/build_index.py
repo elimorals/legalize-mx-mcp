@@ -33,7 +33,9 @@ CREATE TABLE norms (
   municipality TEXT, municipality_fold TEXT, municipality_inegi TEXT,
   rank TEXT, status TEXT, publication_date TEXT, last_updated TEXT,
   has_text INTEGER, repo_path TEXT, url TEXT, page_url TEXT, format TEXT,
-  text_note TEXT, reforms TEXT, extra TEXT
+  text_note TEXT, reforms TEXT, extra TEXT,
+  text_state TEXT,  -- point_in_time (consolidated) | as_enacted (as published) | NULL (no text)
+  text_source TEXT  -- docx | pdf | ocr | NULL
 );
 CREATE VIRTUAL TABLE norms_fts USING fts5(
   id UNINDEXED, title, body, tokenize = 'unicode61 remove_diacritics 2'
@@ -211,6 +213,8 @@ def build(
                     note,
                     json.dumps(reforms, ensure_ascii=False) if reforms else None,
                     json.dumps(extra, ensure_ascii=False),
+                    (fm.get("text_state") or "point_in_time") if law else None,
+                    (fm.get("text_source") or "docx") if law else None,
                 )
             )
             fts.append((ident, e["title"], (law["head"] + "\n" + law["headings"]) if law else ""))
@@ -260,11 +264,13 @@ def build(
                     "documento oficial catalogado; el texto se extrae en vivo",
                     None,
                     json.dumps(extra, ensure_ascii=False, default=str),
+                    None,
+                    None,
                 )
             )
             fts.append((rid, r.get("title") or "", ""))
 
-    db.executemany(f"INSERT OR REPLACE INTO norms VALUES ({','.join('?' * 20)})", rows)
+    db.executemany(f"INSERT OR REPLACE INTO norms VALUES ({','.join('?' * 22)})", rows)
     db.executemany("INSERT INTO norms_fts (id, title, body) VALUES (?, ?, ?)", fts)
     db.execute("CREATE INDEX norms_state ON norms (state, municipality_inegi)")
     db.execute("CREATE INDEX norms_rank ON norms (rank)")

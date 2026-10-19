@@ -176,11 +176,12 @@ def update() -> dict:
 
 def reset() -> None:
     """Forget the open connection (tests, or after an index update)."""
-    global _conn
+    global _conn, _columns
     with _lock:
         if _conn is not None:
             _conn.close()
         _conn = None
+        _columns = None
 
 
 def meta() -> dict[str, str]:
@@ -216,6 +217,16 @@ def find(rid: str) -> dict | None:
         .fetchone()
     )
     return dict(r) if r else None
+
+
+_columns: set[str] | None = None
+
+
+def has_column(name: str) -> bool:
+    global _columns
+    if _columns is None:
+        _columns = {r[1] for r in connect().execute("PRAGMA table_info(norms)")}
+    return name in _columns
 
 
 def search(
@@ -255,6 +266,8 @@ def search(
         "n.id, n.title, n.origin, n.scope, n.state, n.municipality, n.rank, n.status, "
         "n.publication_date, n.last_updated, n.has_text, n.url"
     )
+    if has_column("text_state"):  # indexes built before 2026-10-19 lack these
+        cols += ", n.text_state AS texto_estado, n.text_source AS fuente_texto"
     q = _fts_query(text)
     if q:
         # Title hits first; among them laws with text, then shorter (closer) titles; body-only

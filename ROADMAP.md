@@ -56,7 +56,7 @@ Hoy vamos adelante en el nivel municipal, el historial de reformas, el DOF y la 
 
 **Hoy:** 34,000 normas con texto e historial, de 192,000 catalogadas.
 
-1. **Texto de los PDF de la SCJN:** ~74,000 normas sin Word, en curso. Ya hay ~27,000 listas para publicar, con 93–94 % de éxito y recorte revisado. Se publican como `as_enacted`, con `text_source: pdf/ocr`.
+1. **Texto de los PDF de la SCJN:** ~74,000 normas sin Word. **39,864 extraídas** (31,840 de la capa de texto del PDF + 7,886 con OCR + 138 con OCR parcial) y **en publicación desde el 19-oct-2026**, como `as_enacted` con `text_source: pdf/ocr`. El MCP lo avisa en `aviso_texto`. Las ~31,000 restantes esperan a que bajen sus PDF.
 2. **Capa de texto para las fuentes nuevas:** congresos, periódicos oficiales, municipios y DOF, más la deduplicación contra la SCJN. Una norma con dos fuentes oficiales queda con una sola identidad y ambas fuentes.
 3. **OCR** para los PDF escaneados de municipios y periódicos oficiales.
 4. **Índice con búsqueda en el texto completo** de cada artículo, no solo en el título y el inicio. Sería un índice opcional "completo", de unos 2–3 GB.

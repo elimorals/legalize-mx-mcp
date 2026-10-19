@@ -49,6 +49,24 @@ def _notice(out: dict) -> dict:
     return out
 
 
+def _text_warning(meta: dict) -> str | None:
+    """What the reader must know about a text that is not a consolidated version."""
+    parts = []
+    if meta.get("text_state") == "as_enacted":
+        parts.append(
+            "Texto tal como se publicó en el periódico oficial: no incorpora reformas posteriores "
+            "(historial() lista las que tuvo; sus textos están en los documentos oficiales)."
+        )
+    if meta.get("text_source") == "ocr":
+        parts.append(
+            "Obtenido por OCR de un documento escaneado: puede tener errores de lectura en "
+            "palabras y cifras; verifica lo importante con el PDF oficial (fuentes())."
+        )
+    elif meta.get("text_source") == "pdf":
+        parts.append("Extraído de la capa de texto del PDF oficial; el formato puede variar.")
+    return " ".join(parts) or None
+
+
 def _not_found(rid: str) -> dict:
     return {
         "error": f"no encontré la norma {rid!r}",
@@ -164,9 +182,13 @@ def leer_norma(
         out = {
             **head,
             "texto_estado": meta.get("text_state", "point_in_time"),
+            "fuente_texto": meta.get("text_source", "docx"),
             "vigente_al": (version or {}).get("fecha") or meta.get("last_updated"),
             **_page(body, desde, max_caracteres),
         }
+        warning = _text_warning(meta)
+        if warning:
+            out["aviso_texto"] = warning
         if version:
             out["version"] = {
                 "fecha": version.get("fecha") or version["fecha_commit"],
@@ -386,7 +408,7 @@ def articulo(id: str, numero: str, fecha: str | None = None) -> dict:
         if v is None:
             return {"id": n["id"], "error": f"la norma no existía el {fecha}"}
         ref = v["sha"]
-    _, body = _split(remote.text_at(n["repo_path"], ref))
+    meta, body = _split(remote.text_at(n["repo_path"], ref))
     want = _article_key(numero)
     hits = [(h, t) for k, h, t in articles(body) if k == want]
     if not hits:
@@ -406,6 +428,9 @@ def articulo(id: str, numero: str, fecha: str | None = None) -> dict:
     if len(hits) > 1:
         out["otras_coincidencias"] = [{"articulo": h, "texto": t[:2000]} for h, t in hits[1:4]]
         out["nota"] = "hay más de un artículo con ese número (p. ej. en transitorios)"
+    warning = _text_warning(meta)
+    if warning:
+        out["aviso_texto"] = warning
     return out
 
 

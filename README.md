@@ -14,8 +14,8 @@ Corre en tu máquina, sin servidor propio:
 
 | | |
 |---|---|
-| Normas en el índice | ~191,000, de 53 fuentes oficiales |
-| Con texto e historial versionado | ~34,000, y creciendo |
+| Normas en el índice | ~215,000, de 53 fuentes oficiales ([lista](docs/FUENTES.md)) |
+| Con texto e historial versionado | ~34,000 consolidadas, y **~40,000 más "como se publicaron"** (de PDF y OCR) en publicación |
 | Fuentes | Catálogo de la SCJN (federal, 32 entidades, tratados), 31 congresos y la Consejería de CDMX, Cámara de Diputados, DOF (NOM, lineamientos, acuerdos), periódicos oficiales estatales y ~600 portales municipales |
 | Cobertura municipal | Censo de los 2,478 municipios: cuál es la fuente de cada uno, o por qué no la hay |
 
@@ -106,7 +106,16 @@ legalize-mx dof
 
 `buscar_norma` siempre devuelve el id.
 
-Más ejemplos, con respuestas reales y flujos completos de un agente: [EJEMPLOS.md](EJEMPLOS.md). Qué falta y en qué orden: [ROADMAP.md](ROADMAP.md).
+## Documentación
+
+- [EJEMPLOS.md](EJEMPLOS.md): llamadas reales con su respuesta y flujos completos de un agente.
+- [docs/HERRAMIENTAS.md](docs/HERRAMIENTAS.md): referencia de cada herramienta (parámetros, respuesta, errores, avisos).
+- [docs/DATOS.md](docs/DATOS.md): identificadores, campos, formato del repo y de los commits, esquema del índice.
+- [docs/FUENTES.md](docs/FUENTES.md): las 53 fuentes oficiales con sus conteos.
+- [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md): cómo llega una norma del portal a la respuesta.
+- [docs/MANTENIMIENTO.md](docs/MANTENIMIENTO.md): publicar, reglas de integridad, evaluaciones y tests.
+- [docs/FAQ.md](docs/FAQ.md): confiabilidad, OCR, actualización, límites, licencia.
+- [ROADMAP.md](ROADMAP.md): qué falta y en qué orden.
 
 ## Servidor HTTP (opcional)
 

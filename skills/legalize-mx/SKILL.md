@@ -66,6 +66,9 @@ Ejemplo de respuesta bien formada:
 - **Estados:** van con clave de 3 letras (`JAL`, `NLE`, `CMX`, `MEX`, `OAX`…) o `federal`. Los municipios van por nombre o clave INEGI.
 - **NOM:** cada etapa es una nota distinta del DOF (`proyecto-nom`, `nom`, prórroga, cancelación). Para el texto en vigor, busca la definitiva (`tipo="nom"`) más reciente y su modificación posterior, si existe.
 - **Versiones históricas sospechosas:** si un `diff` marca cientos de artículos "reformados" de golpe, o un artículo histórico no tiene que ver con la ley, puede ser una versión contaminada (error conocido de la fuente, en corrección). No la uses. Avisa al usuario y apóyate en el texto vigente o en el PDF oficial de esa reforma (`historial` → `publicaciones_scjn`).
+- **Si aparece `aviso_texto`, el texto no es consolidado.**
+  - **"Tal como se publicó"** (`texto_estado: as_enacted`): es el texto del periódico oficial y **no incorpora reformas posteriores**. Al citarlo, dilo y revisa `historial()` para saber si hubo reformas después.
+  - **OCR** (`fuente_texto: ocr`): puede tener errores en cifras y nombres. Confirma montos, plazos y porcentajes con el PDF oficial antes de afirmarlos.
 - **Si aparece `aviso_indice`:** avísale al usuario y llama `actualizar_indice()` si la pregunta depende de algo reciente.
 - **`GITHUB_TOKEN`:** sin token, GitHub permite 60 consultas por hora de historial y de lecturas por fecha. Si se agota, dilo y sugiere configurar un `GITHUB_TOKEN`.
 

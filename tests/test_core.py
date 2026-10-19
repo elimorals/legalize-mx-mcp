@@ -256,3 +256,13 @@ def test_staleness_notice(env, monkeypatch):
     monkeypatch.setattr(index, "_manifest", lambda: {"version": index.meta()["version"]})
     (config.CACHE_DIR / "check.json").unlink(missing_ok=True)
     assert "aviso_indice" not in core.buscar_norma("ley")
+
+
+def test_text_state_reported(env):
+    from legalize_mx_mcp import core
+
+    r = core.buscar_norma("ley prueba", estado="federal")["resultados"][0]
+    assert (r["texto_estado"], r["fuente_texto"]) == ("point_in_time", "docx")
+    assert "aviso_texto" not in core.leer_norma("LP")
+    w = core._text_warning({"text_state": "as_enacted", "text_source": "ocr"})
+    assert "tal como se publicó" in w and "OCR" in w
