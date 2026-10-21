@@ -134,13 +134,17 @@ def buscar_norma(
     rows = index.search(texto, estado, municipio, tipo, vigente, con_texto, fuente, limite, desde)
     for r in rows:
         r["has_text"] = bool(r["has_text"])
-    return _notice(
-        {
-            "resultados": rows,
-            "n": len(rows),
-            "siguiente_desde": desde + len(rows) if len(rows) == limite else None,
-        }
-    )
+    out = {
+        "resultados": rows,
+        "n": len(rows),
+        "siguiente_desde": desde + len(rows) if len(rows) == limite else None,
+    }
+    if not texto.strip():
+        out["aviso"] = (
+            "Búsqueda sin texto: los resultados van por fecha de última reforma, no por "
+            "relevancia. Para buscar por palabras usa el argumento texto."
+        )
+    return _notice(out)
 
 
 def leer_norma(
