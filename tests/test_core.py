@@ -176,6 +176,14 @@ def test_search_and_filters(env):
     assert core.buscar_norma("bando", estado="jal")["n"] == 1
 
 
+def test_search_without_text_warns_about_ordering(env):
+    from legalize_mx_mcp import core
+
+    assert "aviso" in core.buscar_norma()
+    assert "aviso" in core.buscar_norma("  ", estado="federal")
+    assert "aviso" not in core.buscar_norma("ley prueba")
+
+
 def test_read_current_and_by_date(env):
     from legalize_mx_mcp import core
 
