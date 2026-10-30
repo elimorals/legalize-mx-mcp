@@ -1,0 +1,19 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "web": {
+      "root": "webapp",
+      "bindings": [{ "type": "service", "service": "mcp", "format": "url", "env": "MCP_URL" }]
+    },
+    "mcp": {
+      "root": "servidor",
+      "entrypoint": "app:app",
+      "buildCommand": "rm -rf legalize_mx_mcp && cp -R ../src/legalize_mx_mcp . && python3 descargar_indice.py"
+    }
+  },
+  "rewrites": [
+    { "source": "/mcp", "destination": { "service": "mcp" } },
+    { "source": "/api/(.*)", "destination": { "service": "mcp" } },
+    { "source": "/(.*)", "destination": { "service": "web" } }
+  ]
+}

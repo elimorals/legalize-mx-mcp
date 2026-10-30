@@ -17,8 +17,8 @@ Corre en tu máquina, sin servidor propio:
 | | |
 |---|---|
 | Normas en el índice | ~215,000, de 53 fuentes oficiales ([lista](docs/FUENTES.md)) |
-| Con texto e historial versionado | ~34,000 consolidadas, y **~40,000 más "como se publicaron"** (de PDF y OCR) en publicación |
-| Fuentes | Catálogo de la SCJN (federal, 32 entidades, tratados), 31 congresos y la Consejería de CDMX, Cámara de Diputados, DOF (NOM, lineamientos, acuerdos), periódicos oficiales estatales y ~600 portales municipales |
+| Con texto e historial versionado | ~34,000 consolidadas. Otras ~40,000 extraídas de PDF y OCR ("como se publicaron") están listas, pero aún no se publican |
+| Fuentes | Catálogo de la SCJN (federal, 32 entidades, tratados), congresos estatales y la Consejería de CDMX, Cámara de Diputados, DOF (NOM, lineamientos, acuerdos), periódicos oficiales estatales y cientos de portales municipales |
 | Cobertura municipal | Censo de los 2,478 municipios: cuál es la fuente de cada uno, o por qué no la hay |
 
 **Cuándo no hay texto.** No todas las normas tienen texto procesado todavía. En esos casos `leer_norma` lo dice y devuelve los documentos oficiales. Con `extraer_en_vivo=true` baja el documento y extrae su texto en ese momento. Un PDF escaneado sale vacío, porque necesita OCR.
@@ -26,6 +26,15 @@ Corre en tu máquina, sin servidor propio:
 ## Instalación
 
 Necesitas [uv](https://docs.astral.sh/uv/). Para extraer PDF en vivo hace falta además `pdftotext` (`brew install poppler` o `apt install poppler-utils`), o instalar el extra `[pdf]`.
+
+### MCP remoto, sin instalar nada
+
+```bash
+claude mcp add --transport http legalize-mx https://legalize-mx.vercel.app/mcp
+claude mcp list        # legalize-mx ... ✔ Connected
+```
+
+En otros clientes: `{ "mcpServers": { "legalize-mx": { "url": "https://legalize-mx.vercel.app/mcp" } } }`. La web [legalize-mx.vercel.app](https://legalize-mx.vercel.app) tiene el buscador, la ficha de cada norma, la [guía](https://legalize-mx.vercel.app/guia) y la API JSON (`/api/<herramienta>`). El remoto no incluye `actualizar_indice`: se actualiza con cada despliegue.
 
 ### Claude Code: plugin con el MCP y la skill (recomendado)
 
@@ -114,7 +123,7 @@ legalize-mx dof
 - [docs/HERRAMIENTAS.md](docs/HERRAMIENTAS.md): referencia de cada herramienta (parámetros, respuesta, errores, avisos).
 - [docs/DATOS.md](docs/DATOS.md): identificadores, campos, formato del repo y de los commits, esquema del índice.
 - [docs/FUENTES.md](docs/FUENTES.md): las 53 fuentes oficiales con sus conteos.
-- [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md): cómo llega una norma del portal a la respuesta.
+- [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md): cómo llega una norma del portal a la respuesta. El ETL completo, con cifras verificadas, está en [legalize-mx.vercel.app/como-se-hizo](https://legalize-mx.vercel.app/como-se-hizo).
 - [docs/MANTENIMIENTO.md](docs/MANTENIMIENTO.md): publicar, reglas de integridad, evaluaciones y tests.
 - [docs/FAQ.md](docs/FAQ.md): confiabilidad, OCR, actualización, límites, licencia.
 - [ROADMAP.md](ROADMAP.md): qué falta y en qué orden.
