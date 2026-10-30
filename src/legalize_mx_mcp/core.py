@@ -6,7 +6,7 @@ import difflib
 import json
 import re
 import unicodedata
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 
 from legalize_mx_mcp import config, index, remote
 
@@ -470,7 +470,9 @@ def cobertura(estado: str | None = None, municipio: str | None = None) -> dict:
 
 
 def dof_del_dia(fecha: str | None = None, solo_normativas: bool = True) -> dict:
-    day = date.fromisoformat(fecha) if fecha else date.today()
+    # "today" is the DOF's day in Mexico City (UTC-6, no DST since 2022), not the host's: a server
+    # in UTC would ask for tomorrow's edition every evening.
+    day = date.fromisoformat(fecha) if fecha else datetime.now(timezone(timedelta(hours=-6))).date()
     notes = remote.dof_day(day)
     if solo_normativas:
         notes = [

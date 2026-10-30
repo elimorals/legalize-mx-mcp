@@ -125,6 +125,9 @@ def main() -> None:
                 "Ponlo detrás de un proxy con autenticación o limita el acceso por red.",
                 file=sys.stderr,
             )
+            # FastMCP was built for 127.0.0.1, so it only accepts a localhost Host header;
+            # served on another interface it would reject every remote client with 421.
+            mcp.settings.transport_security = None
         mcp.settings.host, mcp.settings.port = a.host, a.port
         mcp.run(transport="streamable-http")
     else:

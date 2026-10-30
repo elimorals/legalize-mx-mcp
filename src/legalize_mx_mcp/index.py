@@ -19,6 +19,7 @@ import sqlite3
 import threading
 import time
 import unicodedata
+import zlib
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -35,22 +36,57 @@ def _fold(s: str) -> str:
     return "".join(c for c in s if not unicodedata.combining(c)).lower()
 
 
+# Keys are folded (no accents, lower case). Codes are the ones the index uses.
 _STATE_ALIASES = {
+    "aguascalientes": "AGU",
+    "baja california": "BCN",
+    "baja california sur": "BCS",
+    "campeche": "CAM",
+    "chiapas": "CHP",
+    "chihuahua": "CHH",
+    "ciudad de mexico": "CMX",
     "cdmx": "CMX",
     "df": "CMX",
-    "ciudad de mexico": "CMX",
-    "edomex": "MEX",
-    "estado de mexico": "MEX",
-    "nuevo leon": "NLE",
+    "distrito federal": "CMX",
+    "coahuila": "COA",
+    "coahuila de zaragoza": "COA",
+    "colima": "COL",
+    "durango": "DUR",
+    "guanajuato": "GUA",
+    "guerrero": "GRO",
+    "hidalgo": "HID",
     "jalisco": "JAL",
+    "estado de mexico": "MEX",
+    "edomex": "MEX",
+    "mexico": "MEX",
+    "michoacan": "MIC",
+    "michoacan de ocampo": "MIC",
+    "morelos": "MOR",
+    "nayarit": "NAY",
+    "nuevo leon": "NLE",
+    "oaxaca": "OAX",
+    "puebla": "PUE",
+    "queretaro": "QUE",
+    "queretaro de arteaga": "QUE",
+    "quintana roo": "ROO",
+    "san luis potosi": "SLP",
+    "sinaloa": "SIN",
+    "sonora": "SON",
+    "tabasco": "TAB",
+    "tamaulipas": "TAM",
+    "tlaxcala": "TLA",
+    "veracruz": "VER",
+    "veracruz de ignacio de la llave": "VER",
+    "yucatan": "YUC",
+    "zacatecas": "ZAC",
     "federal": "federal",
     "fed": "federal",
 }
 
 
 def normalize_state(state: str) -> str:
-    s = _fold(state).strip()
-    return _STATE_ALIASES.get(s, "federal" if s == "federal" else state.strip().upper())
+    s = " ".join(_fold(state).split())
+    return _STATE_ALIASES.get(s, state.strip().upper())
 
 
 def _manifest() -> dict:
@@ -209,9 +245,17 @@ def _fts_query(text: str) -> str:
     return " AND ".join(terms)
 
 
+def _norm(r: sqlite3.Row | None) -> dict | None:
+    if r is None:
+        return None
+    d = dict(r)
+    if isinstance(d.get("reforms"), bytes):  # the hosted index stores it zlib-compressed
+        d["reforms"] = zlib.decompress(d["reforms"]).decode()
+    return d
+
+
 def row(rid: str) -> dict | None:
-    r = connect().execute("SELECT * FROM norms WHERE id = ?", (rid,)).fetchone()
-    return dict(r) if r else None
+    return _norm(connect().execute("SELECT * FROM norms WHERE id = ?", (rid,)).fetchone())
 
 
 def find(rid: str) -> dict | None:
@@ -228,7 +272,7 @@ def find(rid: str) -> dict | None:
         )
         .fetchone()
     )
-    return dict(r) if r else None
+    return _norm(r)
 
 
 _columns: set[str] | None = None

@@ -174,6 +174,36 @@ def test_search_and_filters(env):
     r = core.buscar_norma("bando", municipio="Zapopan")["resultados"]
     assert [x["id"] for x in r] == ["congreso-x:a1"]
     assert core.buscar_norma("bando", estado="jal")["n"] == 1
+    assert core.buscar_norma("bando", estado="Jalisco")["n"] == 1
+
+
+def test_compressed_reforms_read_like_plain(env):
+    # servidor/descargar_indice.py stores `reforms` zlib-compressed in the hosted index
+    import sqlite3
+    import zlib
+
+    from legalize_mx_mcp import config, core, index
+
+    db = sqlite3.connect(config.INDEX_PATH)
+    db.create_function("deflate", 1, lambda s: zlib.compress(s.encode()) if s else s)
+    db.execute("UPDATE norms SET reforms = deflate(reforms)")
+    db.commit()
+    db.close()
+    index.reset()
+    pubs = core.historial("FED-sin-texto-2")["publicaciones_scjn"]
+    assert pubs[0]["pdf"] == "https://example.org/r.pdf"
+
+
+def test_state_names_map_to_codes():
+    from legalize_mx_mcp.index import _STATE_ALIASES, normalize_state
+
+    assert normalize_state("Oaxaca") == "OAX"
+    assert normalize_state(" yucatán ") == "YUC"
+    assert normalize_state("Michoacán de Ocampo") == "MIC"
+    assert normalize_state("San  Luis Potosí") == "SLP"
+    assert normalize_state("son") == "SON"
+    assert normalize_state("Federal") == "federal"
+    assert len(set(_STATE_ALIASES.values()) - {"federal"}) == 32
 
 
 def test_search_without_text_warns_about_ordering(env):
