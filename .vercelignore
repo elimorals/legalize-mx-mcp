@@ -1,0 +1,17 @@
+# Only what the two services need ships. The mcp service build copies src/legalize_mx_mcp next
+# to servidor/app.py and downloads the index from Hugging Face (vercel.json). Anchored with "/".
+/.venv
+/dist
+/tests
+/scripts
+/skills
+/docs
+/.github
+/.claude-plugin
+/.pytest_cache
+/.ruff_cache
+/uv.lock
+/servidor/index.sqlite
+/servidor/legalize_mx_mcp
+/webapp/node_modules
+/webapp/.next

@@ -5,3 +5,9 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 skills/legalize-mx-workspace/
+servidor/legalize_mx_mcp/
+servidor/index.sqlite
+webapp/node_modules/
+webapp/.next/
+.vercel
+.env*
