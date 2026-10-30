@@ -85,6 +85,40 @@ export function urlCon(base: string, params: Record<string, string | number | un
   return s ? `${base}?${s}` : base;
 }
 
+// Display casing for titles the sources publish in capitals ("CONSTITUCION POLITICA DE LOS…").
+// Only all-caps titles are touched; the official title stays available to cite.
+const MENORES = new Set(["de", "del", "la", "las", "el", "los", "y", "e", "en", "para", "por", "a", "al", "con", "sobre", "o", "u", "que", "se", "su", "sus", "lo"]);
+const SIGLAS = new Set(["cdmx", "dof", "nom", "sat", "imss", "issste", "infonavit", "pemex", "cfe", "inegi", "scjn", "unam", "ipn", "conagua", "sep", "shcp", "iva", "isr", "ieps", "dif", "tlcan", "t-mec"]);
+const ACENTOS: Record<string, string> = {
+  constitucion: "constitución", politica: "política", codigo: "código", organica: "orgánica", organico: "orgánico",
+  administracion: "administración", educacion: "educación", informacion: "información", proteccion: "protección",
+  participacion: "participación", procuraduria: "procuraduría", republica: "república", mexico: "méxico",
+  juridica: "jurídica", economico: "económico", economica: "económica", credito: "crédito", publico: "público",
+  publica: "pública", publicos: "públicos", tecnico: "técnico", transito: "tránsito", regimen: "régimen",
+  poblacion: "población", contribucion: "contribución", fiscalizacion: "fiscalización", legislacion: "legislación",
+  comision: "comisión", union: "unión", accion: "acción", funcion: "función", prevencion: "prevención",
+  atencion: "atención", ecologico: "ecológico", ecologica: "ecológica", energia: "energía", via: "vía",
+  estadistica: "estadística", tecnologia: "tecnología", vehiculos: "vehículos",
+  policia: "policía", gestion: "gestión", inversion: "inversión", produccion: "producción", obligacion: "obligación",
+  construccion: "construcción", titulo: "título", electrica: "eléctrica", electricas: "eléctricas", publicas: "públicas", juridicos: "jurídicos", ambito: "ámbito", reglamentacion: "reglamentación", organizacion: "organización", tecnica: "técnica", tecnicas: "técnicas", planeacion: "planeación", juridico: "jurídico",
+};
+
+export function titulo(t: string) {
+  const limpio = t.replace(/^\d{1,3}\s+(?=\p{L})/u, "").trim(); // "03 Reglamento…" (municipal file names)
+  if (/\p{Ll}/u.test(limpio) || limpio.length < 5) return limpio;
+  return limpio.split(/(\s+)/).map((w, i) => {
+    if (/^\s+$/.test(w)) return w;
+    const m = /^([^\p{L}\d]*)([\p{L}\d.\-]+)(.*)$/u.exec(w);
+    if (!m) return w;
+    const [, pre, palabra, post] = m;
+    const base = palabra.toLowerCase().replace(/\.$/, "");
+    if (/\d/.test(palabra) || /^(?=[ivx])x{0,3}(?:ix|iv|v?i{0,3})\.?$/i.test(palabra) || SIGLAS.has(base)) return w;
+    const conAcento = ACENTOS[base] ? palabra.toLowerCase().replace(base, ACENTOS[base]) : palabra.toLowerCase();
+    const cap = i > 0 && MENORES.has(base) ? conAcento : conAcento.charAt(0).toUpperCase() + conAcento.slice(1);
+    return pre + cap + post;
+  }).join("");
+}
+
 export function lugar(n: Pick<Norma, "state" | "municipality">) {
   if (!n.state || n.state === "federal") return "Federal";
   return n.municipality ? `${n.municipality}, ${nombreEstado(n.state)}` : nombreEstado(n.state);

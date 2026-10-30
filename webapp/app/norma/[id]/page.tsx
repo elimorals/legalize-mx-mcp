@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { articulosDe, bloques, Cuerpo, Diff, IndiceArticulos } from "@/components/ley";
 import { Fallo, Texto } from "@/components/ui";
-import { api, ESTATUS, fmt, lugar, origen, rango, uno, urlCon, type Norma } from "@/lib/api";
+import { api, ESTATUS, fmt, lugar, origen, rango, titulo, uno, urlCon, type Norma } from "@/lib/api";
 
 const PARTE = 40_000;
 
@@ -30,7 +30,7 @@ const esFecha = (s?: string) => (s && /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : undefi
 export async function generateMetadata({ params }: PageProps<"/norma/[id]">): Promise<Metadata> {
   const n = await api<Lectura>("leer_norma", { id: idDe((await params).id), max_caracteres: 200 });
   if (n.error && !n.title) return { title: "Norma no encontrada" };
-  return { title: n.title, description: `${rango(n.rank) || "Norma"} · ${lugar(n)}${n.last_updated ? ` · última reforma ${n.last_updated}` : ""}. Texto, historial de reformas y fuente oficial.` };
+  return { title: titulo(n.title), description: `${rango(n.rank) || "Norma"} · ${lugar(n)}${n.last_updated ? ` · última reforma ${n.last_updated}` : ""}. Texto, historial de reformas y fuente oficial.` };
 }
 
 // Word and PDF of the same publication are one entry with two links.
@@ -191,7 +191,8 @@ async function Ficha({ params, searchParams }: PageProps<"/norma/[id]">) {
   return (
     <article className="ficha">
       <p className="migas"><Link href="/buscar">Buscar</Link>{n.state && n.state !== "federal" ? <> · <Link href={`/buscar?estado=${n.state}`}>{lugar({ state: n.state, municipality: null })}</Link></> : <> · <Link href="/buscar?estado=federal">Federal</Link></>}</p>
-      <h1>{n.title}</h1>
+      <h1>{titulo(n.title)}</h1>
+      {titulo(n.title) !== n.title && <p className="titulo-oficial">Título oficial: {n.title}</p>}
       <p className="linea-meta">
         <span>{rango(n.rank) || "Norma"}</span><span>{lugar(n)}</span>
         {n.publication_date && <span>Publicada {n.publication_date}</span>}

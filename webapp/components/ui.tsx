@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Copiar } from "@/components/cliente";
-import { ESTATUS, fmt, lugar, rango, type Norma } from "@/lib/api";
+import { ESTATUS, fmt, lugar, rango, titulo, type Norma } from "@/lib/api";
 
 export function Cifra({ n, l }: { n: string | number; l: string }) {
   return (
@@ -20,7 +20,7 @@ export function Texto({ has_text, texto_estado, fuente_texto }: Pick<Norma, "has
 export function NormaItem({ n }: { n: Norma }) {
   return (
     <li className="item">
-      <h3 className="titulo-norma"><Link href={`/norma/${encodeURIComponent(n.id)}`}>{n.title}</Link></h3>
+      <h3 className="titulo-norma"><Link href={`/norma/${encodeURIComponent(n.id)}`}>{titulo(n.title)}</Link></h3>
       <div className="meta">
         <span>{lugar(n)}</span>
         {n.rank && <span>{rango(n.rank)}</span>}

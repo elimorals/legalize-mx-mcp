@@ -59,9 +59,9 @@ pre { background: var(--panel2); border: 1px solid var(--line); border-radius: 8
 .marca .sub { display: none; }
 @media (min-width: 480px) { .marca .sub { display: inline; } }
 .marca b { color: var(--guinda); }
-.nav { display: flex; gap: 2px; overflow-x: auto; margin: 4px -16px 0; padding: 0 12px 6px; scrollbar-width: none; }
+.nav { display: flex; flex-wrap: wrap; gap: 0 2px; margin: 2px -10px 0; padding: 0 0 4px; }
 .nav::-webkit-scrollbar { display: none; }
-.nav a { color: var(--ink-dim); text-decoration: none; padding: 0 12px; min-height: 44px; display: inline-flex; align-items: center; border-radius: 8px; font-size: .95rem; white-space: nowrap; }
+.nav a { color: var(--ink-dim); text-decoration: none; padding: 0 10px; min-height: 44px; display: inline-flex; align-items: center; border-radius: 8px; font-size: .95rem; white-space: nowrap; }
 .nav a[aria-current="page"] { color: var(--ink); font-weight: 600; box-shadow: inset 0 -2px 0 var(--guinda); border-radius: 8px 8px 0 0; }
 .nav a:hover { background: var(--panel2); color: var(--ink); }
 
@@ -234,7 +234,10 @@ mark { background: var(--oro-bg); color: inherit; border-bottom: 1px solid var(-
 @media (min-width: 600px) { .filtros { grid-template-columns: repeat(3, 1fr); } }
 
 /* ficha de norma */
-.ficha h1 { text-wrap: balance; overflow-wrap: anywhere; }
+.ficha h1 { text-wrap: balance; overflow-wrap: anywhere; margin-bottom: .25em; }
+/* en teléfono el menú ocupa dos filas: la cabecera deja de ser fija para no comerse la pantalla */
+@media (max-width: 599px) { .cabecera { position: static; } }
+.titulo-oficial { font-size: .8rem; color: var(--ink-dim); margin: 0 0 12px; letter-spacing: .01em; }
 .ficha section { margin-top: 40px; }
 .linea-meta { display: flex; flex-wrap: wrap; gap: 2px 14px; color: var(--ink-dim); font-size: .92rem; margin: 0 0 10px; }
 .selector { display: grid; gap: 10px; margin: 0 0 16px; align-items: end; }
